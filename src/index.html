@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Tagged element demo</title>
+	<style>
+	#container{border:2px dashed black;}
+		#container>div{border:1px dotted red;}
+	</style>
+</head>
+<body>
+	<div id="container">
+		<div class="foo"></div>
+		<div class="bar"></div>
+		<div class="foo bar"></div>
+		<div class="foo baz"></div>
+		<div class="qux"></div>
+	</div>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+	<script src="js/filter-tags.js"></script>
+	<script>
+		$('#container>div').each(function(){
+			console.log
+			$(this).text(this.className);
+		});
+		$('#container').filterTags();
+	</script>
+</body>
+</html>
