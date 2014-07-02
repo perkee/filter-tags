@@ -31,6 +31,13 @@
 		function pushValues(){
 			values[cat].push($(this).data(cat));
 		}
+		function makeClearCat($select){
+			return function(evt){
+				evt.preventDefault();
+				$select.val([]);
+				$select.trigger('change');
+			};
+		}
 		for(var cat in values){
 			values[cat] = [];
 			$filterable.each(pushValues);
@@ -43,11 +50,7 @@
 			$clear  = $('<button type="button">Clear '+cat+'</button>');
 			$selects = $selects.add($select);
 			$form.append($label,$select,$clear);
-			$clear.on('click',function(evt){
-				evt.preventDefault();
-				$select.val([]);
-				$select.trigger('change');
-			});
+			$clear.on('click',makeClearCat($select));
 		}
 		$selects.on('change',function(evt){
 			evt.preventDefault();
