@@ -1,4 +1,13 @@
+
+
 (function($,window,document,undefined){
+	$.uniq = function(array,fn,invert){
+		invert = !!invert;
+		array = $.isFunction(fn) ? array.sort(fn) : array.sort();
+		return $.grep(array,function(v,i){
+			return !i || v !== array[i-1];
+		},invert);
+	};
 	$.fn.filterTags = function(opts){
 		var defaults = {
 			filteredItems : '>div',
@@ -14,30 +23,54 @@
 		var $t = $(this);
 		var t = this;
 		var $filterable = $t.find(opts.filteredItems);
-		var tags = [];
-		$filterable.each(function(){
-			tags = tags.concat(this.className.split(' '));
-		});
-		tags = tags.sort();
-		tags = $.grep(tags,function(v,i){//dedupe
-			return !i || v !== tags[i - 1];
-		});
-		var select = '<select name="'+opts.selectName+'" multiple size="'+tags.length+'"">';
 		var option = function(tag){
 			return '<option value="'+tag+'">'+tag+'</option>';
 		};
-		select += $.map(tags,option).join('');
-		select += '</select>';
-		var $select = $(select);
-		$select.on('change',function(){
-			var $select = $(this);
-			var val = $select.val();
-			$filterable.hide();
-			if(val.length){
-				var $matches = $filterable.filter('.'+val.join('.')).show();
+		var $form = $('<form></form>');
+		var $label,select,$selects=$([]),values = opts.categories;
+		for(var k in values){
+			values[k] = [];
+		}
+		$filterable.each(function(){
+			for(var cat in values){
+				values[cat].push($(this).data(cat));
 			}
 		});
-		$t.append($select);
+		for(var cat in values){
+			values[cat] = $.uniq(values[cat]);
+		}
+		for(var cat in values) {
+			$label = $('<label for="'+cat+'">'+cat+'</label>');
+			select = '<select id="'+cat+'" name="'+cat+'"'+(opts.categories[cat] ? ' multiple' : '')+' size="'+values[cat].length+'"">';
+			select += $.map(values[cat],option).join('');
+			select += '</select>';
+			$select = $(select);
+			$selects = $selects.add($select);
+			$form.append($label);
+			$form.append($select);
+		}
+		$selects.on('change',function(evt){
+			var select = this;
+			var $select = $(this);
+			var vals = $select.val();
+			if(vals.length){
+				$filterable.show();
+				$selects.each(function(){
+					select = this;
+					$select = $(this);
+					vals = $select.val();
+					if(vals.length){
+						$filterable.filter(function(index,el){
+							var $el = $(el);
+							return !~$.inArray($el.data(select.name),vals);
+						}).hide();
+					}
+				});
+			}
+			console.log(this.name,vals);
+			console.log()
+		});
+		$t.append($form);
 		return this;
 	};
 })(jQuery,window,document);

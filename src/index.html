@@ -7,23 +7,34 @@
 	#container{border:2px dashed black;}
 		#container>div{border:1px dotted red;}
 	</style>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+	<script>
+		if(!window.jQuery){
+			document.write('<script src="js/jquery.min.js"><'+'/script>');
+		}
+	</script>
 </head>
 <body>
 	<div id="container">
-		<div class="foo"></div>
-		<div class="bar"></div>
-		<div class="foo bar"></div>
-		<div class="foo baz"></div>
-		<div class="qux"></div>
+		<div data-country="it" data-color="red"    data-size="medium" class="foo"></div>
+		<div data-country="us" data-color="green"  data-size="small"  class="bar"></div>
+		<div data-country="uk" data-color="yellow" data-size="large"  class="foo bar"></div>
+		<div data-country="fr" data-color="red"    data-size="medium" class="foo baz"></div>
+		<div data-country="cr" data-color="blue"   data-size="small"  class="qux"></div>
 	</div>
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 	<script src="js/filter-tags.js"></script>
 	<script>
 		$('#container>div').each(function(){
 			console.log
 			$(this).text(this.className);
 		});
-		$('#container').filterTags();
+		$('#container').filterTags({
+			categories : {
+				country : true,
+				color   : true,
+				size    : true
+			}
+		});
 	</script>
 </body>
 </html>
