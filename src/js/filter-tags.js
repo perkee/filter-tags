@@ -27,48 +27,42 @@
 			return '<option value="'+tag+'">'+tag+'</option>';
 		};
 		var $form = $('<form></form>');
-		var $label,select,$selects=$([]),values = opts.categories;
-		for(var k in values){
-			values[k] = [];
+		var $label,select,$selects=$([]),$clears=$([]),values = opts.categories;
+		function pushValues(){
+			values[cat].push($(this).data(cat));
 		}
-		$filterable.each(function(){
-			for(var cat in values){
-				values[cat].push($(this).data(cat));
-			}
-		});
 		for(var cat in values){
+			values[cat] = [];
+			$filterable.each(pushValues);
 			values[cat] = $.uniq(values[cat]);
-		}
-		for(var cat in values) {
 			$label = $('<label for="'+cat+'">'+cat+'</label>');
 			select = '<select id="'+cat+'" name="'+cat+'"'+(opts.categories[cat] ? ' multiple' : '')+' size="'+values[cat].length+'"">';
 			select += $.map(values[cat],option).join('');
 			select += '</select>';
 			$select = $(select);
+			$clear  = $('<button type="button">Clear '+cat+'</button>');
 			$selects = $selects.add($select);
-			$form.append($label);
-			$form.append($select);
+			$form.append($label,$select,$clear);
+			$clear.on('click',function(evt){
+				evt.preventDefault();
+				$select.val([]);
+				$select.trigger('change');
+			});
 		}
 		$selects.on('change',function(evt){
-			var select = this;
-			var $select = $(this);
-			var vals = $select.val();
-			if(vals.length){
-				$filterable.show();
-				$selects.each(function(){
-					select = this;
-					$select = $(this);
-					vals = $select.val();
-					if(vals.length){
-						$filterable.filter(function(index,el){
-							var $el = $(el);
-							return !~$.inArray($el.data(select.name),vals);
-						}).hide();
-					}
-				});
-			}
+			evt.preventDefault();
+			$filterable.show();
+			$selects.each(function(index,select){
+				$select = $(select);
+				vals = $select.val();
+				if(vals && vals.length){
+					//don't hide anything if nothing is selected: that'd hide everything every time
+					$filterable.filter(function(index,el){
+						return !~$.inArray($(el).data(select.name),vals);//$.inArray is really indexOf, filterable object's data is one of selected values in select box,
+					}).hide();
+				}
+			});
 			console.log(this.name,vals);
-			console.log()
 		});
 		$t.append($form);
 		return this;
